@@ -1,26 +1,10 @@
 #!/bin/bash
 #
-#        Copyright (C) 2000-2023 the YAMBO team
-#              http://www.yambo-code.org
+# License-Identifier: GPL
+#
+# Copyright (C) 2021 The Yambo Team
 #
 # Authors (see AUTHORS file for details): AM
-#
-# This file is distributed under the terms of the GNU
-# General Public License. You can redistribute it and/or
-# modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation;
-# either version 2, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will
-# be useful, but WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE.  See the GNU General Public License
-# for more details.
-#
-# You should have received a copy of the GNU General Public
-# License along with this program; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place - Suite 330,Boston,
-# MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
 #
 lock_files=`find $dir -name '*.lock'`
 sorted_locks=$(echo "$lock_files"|tr " " "\n"|sort|uniq|tr "\n" " ")
@@ -81,7 +65,6 @@ if [ "$DIR_saved" == "yes" ] ; then
 fi
 if [ "$DIR_restored" == "yes" ] ; then
  source ./sbin/compilation/verbosity.sh "check_updated_locks.sh: $dir has been restored"
- return
 fi
 #
 # tag new objects to be compiled
@@ -94,7 +77,9 @@ do
   for dep_file in $deps; do
    source ./sbin/compilation/verbosity.sh "check_updated_locks.sh: $dep_file must be recompiled"
    source ./sbin/compilation/name_me.sh $dir/$dep_file "no_search"
-   DIR_is_to_recompile=1
+   if [ ! "$DIR_restored" == "yes" ] ; then
+     DIR_is_to_recompile=1
+   fi
    if [ "$lock" == "DOUBLE" ]; then
     source ./sbin/compilation/object_remove.sh "remove" "locks"
     continue;

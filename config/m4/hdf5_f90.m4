@@ -1,27 +1,11 @@
 #
 # from http://www.arsc.edu/support/news/HPCnews/HPCnews249.shtml
 #
-#        Copyright (C) 2000-2023 the YAMBO team
-#              http://www.yambo-code.org
+# License-Identifier: GPL
 #
-# Authors (see AUTHORS file for details): AM, AF, DS, CA
+# Copyright (C) 2021 The Yambo Team
 #
-# This file is distributed under the terms of the GNU
-# General Public License. You can redistribute it and/or
-# modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation;
-# either version 2, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will
-# be useful, but WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE.  See the GNU General Public License
-# for more details.
-#
-# You should have received a copy of the GNU General Public
-# License along with this program; if not, write to the Free
-# Software Foundation, Inc., 59 Temple Place - Suite 330,Boston,
-# MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
+# Authors (see AUTHORS file for details): AM AF DS CA
 #
 AC_DEFUN([AC_HAVE_HDF5_F90],[
 #
@@ -118,30 +102,13 @@ if test x"$enable_hdf5" = "xyes"; then
   FCFLAGS="$try_HDF5_INCS $save_fcflags" ;
   LIBS="$try_HDF5_LIBS" ;
   #
-  #if test "$HDF5_VER" = "serial" ; then
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([], [
-       use hdf5
-       implicit none
-       integer  error
-       call h5open_f(error)
-       call h5close_f(error)
-       ]),[hdf5=yes], [hdf5=no]);
-  #fi;
-  ##
-  #AC_LINK_IFELSE(AC_LANG_PROGRAM([], [
-  #   use hdf5
-  #   implicit none
-  #   integer  error
-  #   error = NF90_HDF5
-  #   call h5open_f(error)
-  #   call h5close_f(error)
-  #   ]),[hdf5_par=yes], [hdf5_par=no]);
-  ##
-  #if test "$HDF5_VER" = "parallel" ; then hdf5="$hdf5_par" ; fi
-  #if test "$HDF5_VER" = "serial" ; then
-  #  if test "x$hdf5_par" = "xyes" ; then HDF5_VER="parallel" ; fi
-  #fi;
-  #
+  AC_LINK_IFELSE(AC_LANG_PROGRAM([], [
+     use hdf5
+     implicit none
+     integer  error
+     call h5open_f(error)
+     call h5close_f(error)
+     ]),[hdf5=yes], [hdf5=no]);
   #
   FCFLAGS="$save_fcflags" ;
   LIBS="$save_libs" ;
@@ -167,14 +134,13 @@ if test x"$enable_hdf5" = "xyes"; then
        h5fc=$(command -v h5fc) 
     fi
     #
-    # This should be fixed
-    # Serial / Parallel libraries should be accepted only if they correspond to what needed by yambo
+    # Check for the existence of the pre-compiled library corresponding to what needed by yambo
     #
-    if test -e $h5pfc; then
+    if test -e $h5pfc && test $IO_LIB_VER = "parallel"; then
        try_HDF5_LIBS=`$h5pfc -show | awk -F'-L' '{@S|@1=""; for (i=2; i<=NF;i++) @S|@i="-L"@S|@i; print @S|@0}'`
        try_hdf5_incdir=`$h5pfc -show | awk -F'-I' '{print @S|@2}' | awk '{print @S|@1}'`
        IO_LIB_VER="parallel";
-    elif test -e $h5fc; then 
+    elif test -e $h5fc && test $IO_LIB_VER = "serial"; then 
        try_HDF5_LIBS=`$h5fc -show | awk -F'-L' '{@S|@1=""; for (i=2; i<=NF;i++) @S|@i="-L"@S|@i; print @S|@0}'`
        try_hdf5_incdir=`$h5fc -show | awk -F'-I' '{print @S|@2}' | awk '{print @S|@1}'`
        IO_LIB_VER="serial";

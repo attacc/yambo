@@ -1,31 +1,16 @@
 #!/bin/bash
 #
-#        Copyright (C) 2000-2023 the YAMBO team
-#              http://www.yambo-code.org
+# License-Identifier: GPL
+#
+# Copyright (C) 2021 The Yambo Team
 #
 # Authors (see AUTHORS file for details): AM DS
-# 
-# This file is distributed under the terms of the GNU 
-# General Public License. You can redistribute it and/or 
-# modify it under the terms of the GNU General Public 
-# License as published by the Free Software Foundation; 
-# either version 2, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will 
-# be useful, but WITHOUT ANY WARRANTY; without even the 
-# implied warranty of MERCHANTABILITY or FITNESS FOR A 
-# PARTICULAR PURPOSE.  See the GNU General Public License 
-# for more details.
-#
-# You should have received a copy of the GNU General Public 
-# License along with this program; if not, write to the Free 
-# Software Foundation, Inc., 59 Temple Place - Suite 330,Boston, 
-# MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
 # make sure there is no locale setting creating unneeded differences.
 #
 LC_ALL=C
 export LC_ALL
 #
+BASE=$PWD
 #
 ARGS=$@;
 source ./sbin/compilation/helper.inc.sh
@@ -140,11 +125,11 @@ DTARG=`echo $target | sed "s/\.a//" | sed "s/\-//"`
 $cpp $cppflags $precomp_flags -D_$DTARG $cdir/objects.c  > $cdir/objects.mk
 rm -f $cdir/objects.c 
 #
-# Makefile (II): common vars
+# Makefile (III): common vars
 rm_command="@rm -f \$*\$(f90suffix)"
 if [ "$KEEPSRC" == "yes" ]; then rm_command=" "; fi ;
 #
-# Makefile creation: (III) special sources 
+# Makefile creation: (IV) special sources 
 source ./sbin/compilation/special_sources.sh
 #
 cat <<EOF > $compdir/config/mk/local/static_variables.mk
@@ -163,18 +148,25 @@ FC_NOOPT_SRC   =$FC_NOOPT_SRC
 FC_LOCAL_SRC   =$FC_LOCAL_SRC
 EOF
 #
-# Makefile (III): copy makefile
+# Makefile (V): copy makefile
 cp config/mk/local/makefile $cdir/Makefile
 #
-# Restore the name of all files scheduled to be moved in directories not touched by the compilation procedure
+# Makefile (VI): clean orphan _to_save files
+#
+# Some files scheduled to be moved can still be unmoved. This happens if the _to_save flag is added
+# to a file that has no explicit dependence on the projects (see for example ypp/dipoles/DIPOLES_ypp_driver).
+# In this case the file cannot be saved in a project dependent folder and needs to be removed.
+#
+# This will however introduce a bug in any subsequent compilation.
+# Let's consider for example a module which is project dependent.
+# The first time the project is compiled, the module is re-created, and all the files.o dependent on it are tagged
+# (i) to be saved, and (ii) to be re-compiled
+# If later the same project is re-compiled, the module is loaded, and all the files.o dependent on it are not tagged
+# (i) not to be saved, and (ii) not to be recompiled neither.
+# They will be left in a version, which might be the one of another projects (e.g. linked to another versione of the module) 
+#
 if [ "$mode" == "x" ] ; then
- files_to_restore=`find $compdir -type f -name "*_to_save"`
- for file in $files_to_restore
- do
-   source ./sbin/compilation/verbosity.sh "helper.sh: mv $file -> ${file/_to_save/}"
-   mv $file ${file/_to_save/}
- done
- files_to_remove=`find $compdir -type l -name "*_to_save"`
+ files_to_remove=`find $compdir -type f -name "*_to_save"`
  for file in $files_to_remove
  do
    source ./sbin/compilation/verbosity.sh "helper.sh: rm $file"

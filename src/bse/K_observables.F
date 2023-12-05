@@ -1,44 +1,36 @@
 !
-!        Copyright (C) 2000-2023 the YAMBO team
-!              http://www.yambo-code.org
+! License-Identifier: GPL
 !
-! Authors (see AUTHORS file for details): AM
-! 
-! This file is distributed under the terms of the GNU 
-! General Public License. You can redistribute it and/or 
-! modify it under the terms of the GNU General Public 
-! License as published by the Free Software Foundation; 
-! either version 2, or (at your option) any later version.
+! Copyright (C) 2021 The Yambo Team
 !
-! This program is distributed in the hope that it will 
-! be useful, but WITHOUT ANY WARRANTY; without even the 
-! implied warranty of MERCHANTABILITY or FITNESS FOR A 
-! PARTICULAR PURPOSE.  See the GNU General Public License 
-! for more details.
+! Authors (see AUTHORS file for details): AM DS
 !
-! You should have received a copy of the GNU General Public 
-! License along with this program; if not, write to the Free 
-! Software Foundation, Inc., 59 Temple Place - Suite 330,Boston, 
-! MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
-!
-subroutine K_observables( )
+subroutine K_observables( W )
  !
 #if defined _SLEPC && !defined _NL
  use BS_solvers,   ONLY:run_Slepc
 #endif
- use drivers,      ONLY:l_rpa_IP
+ use drivers,      ONLY:l_rpa_IP,l_col_cut
+ use D_lattice,    ONLY:l_3D
+ use frequency,    ONLY:w_samp
  use X_m,          ONLY:global_gauge
  use BS_solvers,   ONLY:run_Haydock,run_inversion,run_Diago,BSS_mode
  use BS,           ONLY:BS_dip_size,l_BS_anomalous_Hall,l_BS_abs,l_BS_jdos,l_BS_trace,BSE_prop,&
 &                       l_BS_esort,l_BS_kerr,l_BS_magnons,l_BS_dichroism,l_BS_anomalous_Hall,l_BS_photolum,&
-&                       l_BS_optics,BS_dip_size,l_BS_magnons,l_BS_photolum
+&                       l_BS_optics,BS_dip_size,l_BS_magnons,l_BS_photolum,BSE_mode,BSE_L_kind
  use parser_m,     ONLY:parser
  use stderr,       ONLY:STRING_match
  use electrons,    ONLY:levels,n_sp_pol,n_spin
  !
  implicit none
  !
- type(levels)  ::Ken
+ type(w_samp)   :: W
+ !
+ ! Work space
+ !
+ type(levels)  :: Ken
+ character(2)  :: ordering
+ logical       :: l_flag
  !
  ! What...
  !=========
@@ -91,6 +83,11 @@ subroutine K_observables( )
  if (run_Haydock.and.allocated(Ken%W)) then
    call warning('K with QP widths not supported in the Haydock solver')
    run_Haydock=.false.
+ endif
+ !
+ if(.not.any((/trim(global_gauge)=="velocity".or.trim(global_gauge)=="length"/)) ) then
+   call warning(" Not a valid gauge in input. Switching to length gauge")
+   global_gauge="length"
  endif
  !
 end subroutine

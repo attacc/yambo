@@ -1,25 +1,9 @@
 !
-!        Copyright (C) 2000-2023 the YAMBO team
-!              http://www.yambo-code.org
+! License-Identifier: GPL
+!
+! Copyright (C) 2022 The Yambo Team
 !
 ! Authors (see AUTHORS file for details): AM AC
-! 
-! This file is distributed under the terms of the GNU 
-! General Public License. You can redistribute it and/or 
-! modify it under the terms of the GNU General Public 
-! License as published by the Free Software Foundation; 
-! either version 2, or (at your option) any later version.
-!
-! This program is distributed in the hope that it will 
-! be useful, but WITHOUT ANY WARRANTY; without even the 
-! implied warranty of MERCHANTABILITY or FITNESS FOR A 
-! PARTICULAR PURPOSE.  See the GNU General Public License 
-! for more details.
-!
-! You should have received a copy of the GNU General Public 
-! License along with this program; if not, write to the Free 
-! Software Foundation, Inc., 59 Temple Place - Suite 330,Boston, 
-! MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
 !
 integer function variables_ELPH(ID,what)
  !
@@ -58,7 +42,7 @@ integer function variables_ELPH(ID,what)
  !
  NVAR=6
  if (ver_is_gt_or_eq(ID,revision=18920)) NVAR=7
- if (ver_is_gt_or_eq(ID,revision=21550)) NVAR=8
+ if (ver_is_gt_or_eq(ID,revision=21550)) NVAR=9
  call def_variable_elemental(ID,"PARS",NVAR,SP,0)
  !
  call io_variable_elemental(ID,VAR="[ELPH] Phonon modes",I0=ph_modes,CHECK=.true.,OP=(/"=="/),DESCRIPTOR=ELPH_desc)
@@ -67,8 +51,13 @@ integer function variables_ELPH(ID,what)
  if (l_gFsq) call io_variable_elemental(ID,VAR="[ELPH]",I0=elph_nQ_used,CHECK=.true.,OP=(/"=="/),&
 &                                         TERMINATOR="[used]",DESCRIPTOR=ELPH_desc)
  call io_variable_elemental(ID,VAR="[ELPH] K points",I0=elph_nk_bz,CHECK=.true.,OP=(/"=="/),DESCRIPTOR=ELPH_desc)
- call io_variable_elemental(ID,VAR="[ELPH] El-PH bands",I1=elph_bands,CHECK=.true.,OP=(/"==","=="/),DESCRIPTOR=ELPH_desc)
- if (read_is_on(ID)) elph_nb=elph_bands(2)-elph_bands(1)+1
+ if (ver_is_gt_or_eq(ID,revision=21550)) then
+   call io_variable_elemental(ID,VAR="[ELPH] El-PH bands",I1=elph_bands,CHECK=.true.,OP=(/"==","=="/),DESCRIPTOR=ELPH_desc)
+   if (read_is_on(ID)) elph_nb=elph_bands(2)-elph_bands(1)+1
+ else
+   call io_variable_elemental(ID,VAR="[ELPH] El-PH bands",I0=elph_nb,CHECK=.true.,OP=(/"=="/),DESCRIPTOR=ELPH_desc)
+   if (read_is_on(ID)) elph_bands=(/1,elph_nb/)
+ endif
  call io_variable_elemental(ID,VAR="[ELPH] Using the Q-grid",L0=elph_use_q_grid,CHECK=.true.,OP=(/"=="/),DESCRIPTOR=ELPH_desc)
  if (ver_is_gt_or_eq(ID,revision=18920)) then
    call io_variable_elemental(ID,VAR="[ELPH] Bare interaction",L0=l_GKKP_hosts_bare_dV,&
