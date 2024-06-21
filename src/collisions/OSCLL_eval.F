@@ -144,35 +144,33 @@ subroutine OSCLL_eval(q,k,en)
      call live_timing(steps=1)
      cycle
    endif
-
    ! 
    ik_mem=PAR_Xk_ibz_index(i_k)
    !
    OSCLL_k=cZERO
    !
-   do i_n=COLL_bands(1),COLL_bands(2)
-     do i_m=COLL_bands(1),COLL_bands(2)
-       !
-       ib_idx=i_m-COLL_bands(1)+1+(i_n-COLL_bands(1))*COLL_nbands
-       !
-       if (.not.PAR_IND_G_b%element_1D(ib_idx)) cycle
-       !
-       do iqbz=1,q%nbz
+   do iqbz=1,q%nbz
+     !
+     i_kmq_G0  =qindx_S(i_k,iqbz,2)
+     iqibz     =q%sstar(iqbz,1)
+     iqs       =q%sstar(iqbz,2)
+     isc%qs  =(/i_kmq_G0,iqibz,iqs/)
+     !
+     i_k_s=1
+     i_kmq   = k%sstar(qindx_S(i_k,iqbz,1),1)
+     i_kmq_s = k%sstar(qindx_S(i_k,iqbz,1),2)
+     !
+     !  Spin-Polarization not supported!!
+     ! 
+     i_k_sp  = 1
+     i_kmq_sp= 1
+     !
+     do i_n=COLL_bands(1),COLL_bands(2)
+       do i_m=COLL_bands(1),COLL_bands(2)
          !
-         i_kmq_G0  =qindx_S(i_k,iqbz,2)
-         iqibz     =q%sstar(iqbz,1)
-         iqs       =q%sstar(iqbz,2)
-         isc%qs  =(/i_kmq_G0,iqibz,iqs/)
+         ib_idx=i_m-COLL_bands(1)+1+(i_n-COLL_bands(1))*COLL_nbands
          !
-         i_k_s=1
-         i_kmq   = k%sstar(qindx_S(i_k,iqbz,1),1)
-         i_kmq_s = k%sstar(qindx_S(i_k,iqbz,1),2)
-         !
-         !  Spin-Polarization not supported!!
-         ! 
-         i_k_sp  = 1
-         i_kmq_sp= 1
-         !
+         if (.not.PAR_IND_G_b%element_1D(ib_idx)) cycle
          !
          isc%is  =(/i_n,i_k,i_k_s,i_k_sp/)
          isc%os  =(/i_m,i_kmq,i_kmq_s,i_kmq_sp/)
