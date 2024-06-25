@@ -176,9 +176,10 @@ subroutine OSCLL_eval(q,k,en)
      K_index%element_1D(i_k) =.TRUE.
      K_index%element_1D(i_kmq)=.TRUE.
      !
+     call IO_and_Messaging_switch("-report -log")
      call PARALLEL_WF_distribute(K_index=K_index,CLEAN_UP=.TRUE.)
-!     call PARALLEL_WF_index( )
      call WF_load(WF,wf_ng,iGo_max,COLL_bands,(/1,k%nibz/),space='R',title='-OSC')  
+     call IO_and_Messaging_switch("+report +log")
      !
      do i_n=COLL_bands(1),COLL_bands(2)
        do i_m=COLL_bands(1),COLL_bands(2)
