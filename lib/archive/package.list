@@ -33,7 +33,7 @@ version_pnetcdf=1.12.1
 version_hdf5=1.12.2
 version_etsf_io=1.0.4
 version_libxc=5.2.3
-version_lapack=3.9.1
+version_lapack=3.12.0
 version_blacs=missing
 version_scalapack=2.2.1
 version_slepc=3.17.2
@@ -98,12 +98,14 @@ url_netcdff=https://github.com/Unidata/netcdf-fortran/archive/refs/tags/$(tarbal
 #
 url_slepc=https://gitlab.com/slepc/slepc/-/archive/v$(version_slepc)/$(tarball_slepc)
 url_petsc=https://gitlab.com/petsc/petsc/-/archive/v$(version_petsc)/$(tarball_petsc)
-#url_libxc=https://gitlab.com/libxc/libxc/-/archive/$(version_libxc)/$(tarball_libxc)  # this would require to run "autoreconf -i"
+url_devxlib=https://gitlab.com/max-centre/components/devicexlib/-/archive/$(version_devxlib)/$(tarball_devxlib)
+#
+#...this requires to run "autoreconf -i" (coded)
+url_libxc=https://gitlab.com/libxc/libxc/-/archive/$(version_libxc)/$(tarball_libxc)
 #
 # External URL's More
 #
 url_fftw=https://fftw.org/$(tarball_fftw)
-url_libxc=https://www.tddft.org/programs/libxc/down/$(version_libxc)/$(tarball_libxc)
 #
 # Internal URL's
 #
